@@ -9,7 +9,7 @@ const VERBOSITY_DEBUG = 256;
 require "vendor/autoload.php";
 
 $verbosity = 64;
-$class = new SalvatorePruiti\AmazonScraper(function($message, $verbosity_level) use ($verbosity) {
+$class = new DucCrawler\AmazonScraper(function($message, $verbosity_level) use ($verbosity) {
 
     switch ($verbosity_level) {
         case 32:
@@ -25,7 +25,7 @@ $class = new SalvatorePruiti\AmazonScraper(function($message, $verbosity_level) 
 
 });
 
-$class = new \SalvatorePruiti\AmazonScraper();
+$class = new \DucCrawler\AmazonScraper();
 
 $class->setProxies([]);
 
