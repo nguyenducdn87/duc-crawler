@@ -1,0 +1,26 @@
+{
+    "name": "nguyenducdn87/duc-crawler",
+    "license": "MIT",
+    "description": "Amazon Product Page Scraping Script",
+    "keywords": ["amazon", "scraping", "scraper", "webscraping"],
+    "type": "library",
+    "require": {
+        "php": "^7.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/dom-crawler": "^4.1",
+        "symfony/css-selector": "^4.1",
+        "ext-json": "*",
+        "ext-iconv": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "DucCrawler\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Duc Nguyen",
+            "email": "nguyenducdn67@gmail.com"
+        }
+    ]
+}
