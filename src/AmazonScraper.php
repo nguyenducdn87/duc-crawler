@@ -19,13 +19,15 @@ class AmazonScraper
         'fr' => ['Plus que ([0-9]*) ex. Commandez vite !', "Il ne reste plus que ([0-9]*)"],
         'es' => ['Sólo hay ([0-9]*) en stock. Cómpralo cuanto antes\.', 'Sólo\squeda\(n\)\s([0-9]*)', 'Sólo queda(n) ([0-9]*) en stock \(hay más unidades en camino\)\.'],
         'co.uk' => ['Only ([0-9]*) left in stock\.'],
+        'com' => ['Only ([0-9]*) left in stock\.']
     ];
     private $unavailableStrings = [
         "it" => ["Attualmente non disponibile","Non Disponibile"],
         "de" => ["Nicht auf Lager","Dieser Artikel ist noch nicht verfügbar","Derzeit nicht auf Lager", 'Not in stock', 'Temporarily out of stock'],
         'fr' => ['Pas de stock', 'Temporairement en rupture de stock'],
         'es' => ['Temporalmente sin stock'],
-        'co.uk' => ['Not in stock', 'Temporarily out of stock']
+        'co.uk' => ['Not in stock', 'Temporarily out of stock'],
+        'com' => ['Not in stock', 'Temporarily out of stock']
     ];
     private $olp = [
         'it' => [
@@ -52,6 +54,11 @@ class AmazonScraper
             'new' => ['([0-9]+) new from (£[0-9\.,]+)'],
             'used' => ["([0-9]+) used from (£[0-9\.,]+)"],
             'refurbished' => [],
+        ],
+        'com' => [
+            'new' => ['([0-9]+) new from ($[0-9\.,]+)'],
+            'used' => ["([0-9]+) used from ($[0-9\.,]+)"],
+            'refurbished' => [],
         ]
     ];
 //    private $disponibileDaQuestiFornitori = [
@@ -73,6 +80,7 @@ class AmazonScraper
         'fr' => 'Neuf',
         'es' => 'Nuevo',
         'co.uk' => 'New',
+        'com' => 'New'
     ];
 
     private $amazonMerchants = [
@@ -80,7 +88,7 @@ class AmazonScraper
         "Amazon.de" => "A3JWKAKR8XB7XF",
         "Amazon.fr" => "A1X6FK5RDHNB96",
         "Amazon.es" => "A1AT7YVPFBWXBL",
-        "Amazon.co.uk" => "A3P5ROKL5A1OLE",
+        "Amazon.co.uk" => "A3P5ROKL5A1OLE"
 
     ];
 
@@ -108,6 +116,7 @@ class AmazonScraper
         "fr" => "EUR",
         "es" => "EUR",
         "co.uk" => "GBP",
+        "com" => "USD"
     ];
     private $lastPageBody;
     private $lastRequestStatusCode;
@@ -669,9 +678,18 @@ class AmazonScraper
 
                     return $this->clean_text($value);
                 }],
+            [
+                'name' => 'salerank',
+                'selector' => "#SalesRank",
+                'attribute' => "text_only_parent",
+                'callback' => function ($value) {
+                    return substr($this->clean_text($value),0,strpos($this->clean_text($value)," "));
+                }
+            ]
         ];
 
         $data = [];
+        // dd($dom);
         foreach ($fields as $field) {
 
             $value = $this->getValue($dom, $field['selector'], $field['attribute']);
@@ -681,10 +699,10 @@ class AmazonScraper
             $data[$field['name']] = $value;
 
         }
-
+        // dd($this->currencies);
         $data['currency'] = $this->currencies[$market];
 
-        if($data['currency'] !== 'EUR') {
+        if($data['currency'] !== 'EUR' && $data['currency'] !== 'USD') {
             $data['price'] = round($this->convert_currency($data['price'], $data['currency']), 2);
             $data['shipping'] = $data['shipping'] ? round($this->convert_currency($data['shipping'], $data['currency']),2) : 0;
         }
@@ -807,7 +825,8 @@ class AmazonScraper
                 case "_text":
                 case "text":
                     return $node->text();
-
+                case "text_only_parent":
+                    return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $node->html());
                 default:
                     return $node->attr($attr);
             }
