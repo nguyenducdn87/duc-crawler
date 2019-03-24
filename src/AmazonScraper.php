@@ -683,7 +683,16 @@ class AmazonScraper
                 'selector' => "#SalesRank",
                 'attribute' => "text_only_parent",
                 'callback' => function ($value) {
-                    return substr($this->clean_text($value),0,strpos($this->clean_text($value)," "));
+                    return substr($this->clean_text($value),1,strpos($this->clean_text($value)," ")-1);
+                }
+            ],
+            [
+                'name' => 'datefirst',
+                'selector' => "#detailBullets_feature_div ul li:nth-child(5) span:nth-child(2)",
+                'attribute' => "text",
+                'callback' => function ($value) {
+                    $d=strtotime($this->clean_text($value));
+                    return date("Y-m-d", $d);
                 }
             ]
         ];
